@@ -88,6 +88,33 @@ pip install -r requirements.txt
 
 ---
 
+## 💾 Pre-Trained Model Checkpoints
+
+Due to GitHub's file size limits (>100 MB), the pre-trained PyTorch model checkpoints are hosted externally on Google Drive:
+
+[![Google Drive](https://img.shields.io/badge/Google%20Drive-Model%20Checkpoints-4285F4?logo=googledrive&logoColor=white)](YOUR_GOOGLE_DRIVE_LINK_HERE)
+
+> **📥 Download Link:** [Download Pre-Trained Checkpoints (Google Drive)](YOUR_GOOGLE_DRIVE_LINK_HERE)
+
+### Setup Downloaded Checkpoints:
+After downloading the checkpoint files, place them into the `outputs/checkpoints/` directory:
+
+```bash
+outputs/checkpoints/
+├── into_model.pt          # Converged INTO Agent weights (~153 MB)
+├── ddqn_model.pt          # Converged DDQN Baseline weights (~30 MB)
+├── into_lr_0.0001.pt      # Fig 3(a) lr=0.0001 checkpoint
+├── into_lr_0.001.pt       # Fig 3(a) lr=0.001 checkpoint
+├── into_lr_0.01.pt        # Fig 3(a) lr=0.01 checkpoint
+├── into_gamma_0.99.pt     # Fig 3(b) gamma=0.99 checkpoint
+├── into_gamma_0.79.pt     # Fig 3(b) gamma=0.79 checkpoint
+└── into_gamma_0.59.pt     # Fig 3(b) gamma=0.59 checkpoint
+```
+
+With checkpoints in place, evaluation and baseline comparison experiments can be executed immediately without retraining.
+
+---
+
 ## 🚀 Reproducibility & Execution Commands
 
 ### Run Complete End-to-End Suite
