@@ -92,9 +92,9 @@ pip install -r requirements.txt
 
 Due to GitHub's file size limits (>100 MB), the pre-trained PyTorch model checkpoints are hosted externally on Google Drive:
 
-[![Google Drive](https://img.shields.io/badge/Google%20Drive-Model%20Checkpoints-4285F4?logo=googledrive&logoColor=white)](YOUR_GOOGLE_DRIVE_LINK_HERE)
+[![Google Drive](https://img.shields.io/badge/Google%20Drive-Model%20Checkpoints-4285F4?logo=googledrive&logoColor=white)](https://drive.google.com/drive/folders/18xrKB51Q4GvM80flyxkkENladABfgbto?usp=sharing)
 
-> **📥 Download Link:** [Download Pre-Trained Checkpoints (Google Drive)](YOUR_GOOGLE_DRIVE_LINK_HERE)
+> **📥 Download Link:** [Download Pre-Trained Checkpoints (Google Drive)](https://drive.google.com/drive/folders/18xrKB51Q4GvM80flyxkkENladABfgbto?usp=sharing)
 
 ### Setup Downloaded Checkpoints:
 After downloading the checkpoint files, place them into the `outputs/checkpoints/` directory:
