@@ -1,0 +1,43 @@
+# Digital Twin-Driven Intelligent Task Offloading (INTO) Configuration
+# System & Experiment Hyperparameters based on Zhang et al. (IEEE JSAC 2023)
+
+system:
+  num_bs: 3
+  device_distribution: [30, 55, 80] # BS1: 30, BS2: 55, BS3: 80, Total: 165
+  bandwidth: 1000000.0             # B = 1 MHz = 1e6 Hz
+  noise_psd: 0.00000001            # N0 = 1e-8 W/Hz
+  bs_computing_capacity: 5000000000.0 # Fi(t) = 5 GHz = 5e9 cycles/s
+  inter_bs_rate: 100000000.0       # C_i_prime_i = 100 Mbps = 1e8 bps
+  slot_duration: 1.0               # tau = 1.0 s (time slot duration)
+
+tasks:
+  data_size_range: [50000.0, 80000.0]        # z_ij ~ U[50, 80] kbits = [50000, 80000] bits
+  processing_density_range: [3000.0, 8000.0] # v_ij ~ U[3000, 8000] cycles/bit
+  delay_tolerance_range: [0.2, 2.0]          # delta_ij ~ U[0.2, 2.0] s
+  award_range: [1.0, 3.0]                    # g_ij ~ U[1, 3]
+  tx_power_range: [0.05, 0.18]               # p_ij ~ U[50, 180] mW = [0.05, 0.18] W
+  harvested_energy_range: [0.001, 0.0015]    # e_ij ~ U[1, 1.5] mW = [0.001, 0.0015] J (per slot tau=1s)
+  initial_battery_range: [0.01, 0.05]        # initial battery stored energy (Joules)
+  channel_gain_nominal: 1.0                  # normalized channel gain h_ij with B*N0=10mW
+
+drl:
+  actor_hidden_layers: [3000, 1000]          # Actor DNN hidden layers
+  critic_hidden_layers: [1500, 600]          # Critic DNN hidden layers
+  ddqn_hidden_layers: [1000, 600]            # DDQN baseline hidden layers
+  learning_rate_actor: 0.0001                # Table II: 0.0001
+  learning_rate_critic: 0.0001               # Table II: 0.0001
+  learning_rate_ddqn: 0.001                  # DDQN lr: 0.001
+  target_update_tau_actor: 0.001             # eps2 = 0.001
+  target_update_tau_critic: 0.001            # eps1 = 0.001
+  target_update_tau_ddqn: 0.001              # DDQN target update rate: 0.001
+  batch_size: 64                             # Batch size = 64
+  replay_memory_size: 3000                   # Replay buffer = 3000
+  discount_factor: 0.99                      # gamma = 0.99
+  exploration_noise_std: 0.1                 # std of Gaussian exploration noise eta(t)
+  exploration_noise_decay: 0.9995            # noise decay factor per time slot
+  min_exploration_noise_std: 0.01
+
+training:
+  num_episodes: 30
+  steps_per_episode: 100                     # 30 * 100 = 3000 time slots total
+  seed: 42

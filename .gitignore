@@ -1,0 +1,42 @@
+# Byte-compiled / optimized / ambient files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Environment
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Large Model Checkpoints (>100MB exceeds GitHub push limits)
+# Checkpoints can be downloaded from GitHub Releases
+outputs/checkpoints/*.pt
+outputs/checkpoints/*.pth
+*.pt
+*.pth
+
+# macOS system files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Matplotlib & editor caches
+.matplotlib/
+/tmp/matplotlib_cache/
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Temporary distribution / build artifacts
+build/
+dist/
+*.egg-info/
