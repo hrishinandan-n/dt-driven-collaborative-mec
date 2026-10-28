@@ -88,30 +88,12 @@ pip install -r requirements.txt
 
 ---
 
-## 💾 Pre-Trained Model Checkpoints
+## 💾 Model Checkpoints
 
-Due to GitHub's file size limits (>100 MB), the pre-trained PyTorch model checkpoints are hosted externally on Google Drive:
+Pre-trained model weights (`.pt`) can be downloaded from:  
+📥 **[Google Drive Checkpoints Folder](https://drive.google.com/drive/folders/18xrKB51Q4GvM80flyxkkENladABfgbto?usp=sharing)**
 
-[![Google Drive](https://img.shields.io/badge/Google%20Drive-Model%20Checkpoints-4285F4?logo=googledrive&logoColor=white)](https://drive.google.com/drive/folders/18xrKB51Q4GvM80flyxkkENladABfgbto?usp=sharing)
-
-> **📥 Download Link:** [Download Pre-Trained Checkpoints (Google Drive)](https://drive.google.com/drive/folders/18xrKB51Q4GvM80flyxkkENladABfgbto?usp=sharing)
-
-### Setup Downloaded Checkpoints:
-After downloading the checkpoint files, place them into the `outputs/checkpoints/` directory:
-
-```bash
-outputs/checkpoints/
-├── into_model.pt          # Converged INTO Agent weights (~153 MB)
-├── ddqn_model.pt          # Converged DDQN Baseline weights (~30 MB)
-├── into_lr_0.0001.pt      # Fig 3(a) lr=0.0001 checkpoint
-├── into_lr_0.001.pt       # Fig 3(a) lr=0.001 checkpoint
-├── into_lr_0.01.pt        # Fig 3(a) lr=0.01 checkpoint
-├── into_gamma_0.99.pt     # Fig 3(b) gamma=0.99 checkpoint
-├── into_gamma_0.79.pt     # Fig 3(b) gamma=0.79 checkpoint
-└── into_gamma_0.59.pt     # Fig 3(b) gamma=0.59 checkpoint
-```
-
-With checkpoints in place, evaluation and baseline comparison experiments can be executed immediately without retraining.
+Place downloaded `.pt` files into `outputs/checkpoints/` to run evaluations without retraining.
 
 ---
 
