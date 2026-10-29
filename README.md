@@ -152,4 +152,13 @@ Comprehensive 4-way comparison: **INTO vs. OLNPO vs. LPWPO vs. DDQN**
 | **(c) Delay Tolerance Scale ($\psi = 1 \dots 4$)** | **(d) Channel Bandwidth ($B = 0.6 \dots 1.6\text{ MHz}$)** |
 | ![Fig 6c](outputs/plots/figure_6c_task_delay.png) | ![Fig 6d](outputs/plots/figure_6d_channel_bandwidth.png) |
 
+#### Summary of Comparative Performance:
+Across all variations in workload sizes, server computing capacities, task delay tolerances, and wireless channel bandwidths, the proposed **INTO** scheme consistently achieves the highest total system income:
+$$\mathbf{INTO} (\approx 143\text{--}191) > \mathbf{LPWPO} (\approx 133\text{--}179) > \mathbf{DDQN} (\approx 94\text{--}145) > \mathbf{OLNPO} (\approx 72\text{--}111)$$
+
+- **INTO** jointly optimizes cross-cell peer offloading and computing resource allocation via the Digital Twin state mirror and Fast Action Refinement (Algorithm 1), maximizing global economic priority $\varrho_{ij} = g_{ij} / l_{ij}$.
+- **LPWPO** prioritizes local tasks first, restricting peer offloading to leftover surplus capacity.
+- **DDQN** suffers from value-approximation sub-optimality due to the curse of dimensionality over the discrete $4^{165}$ action space.
+- **OLNPO** strictly prohibits peer offloading, leading to under-utilized resources in light-load base stations and severe task dropping in congested base stations.
+
 ---
