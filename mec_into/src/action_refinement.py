@@ -51,21 +51,28 @@ class FastActionRefiner:
         }
 
         # Step 1: Nearest neighbor discrete action a'(t) according to Eq. (15)
-        # For each task, select discrete target k in {0 (discard), 1..N (offload to BS 1..N)}
-        target_indices = np.argmax(continuous_action, axis=1)
+        # In Section IV-B, action consists of offloading decisions y_ij^{i'}(t).
+        # When continuous_action has shape (M, num_bs + 1), entries 1..num_bs represent
+        # offloading preferences for BS 0..num_bs-1.
+        # Nearest neighbor maps continuous offloading preference to the best target BS.
+        # Discarding is governed by energy constraint (5) (Eq. 16, 17) and capacity constraint (10) (Algorithm 1 lines 5-8).
+        if continuous_action.shape[1] == self.num_bs + 1:
+            target_indices = np.argmax(continuous_action[:, 1:], axis=1)
+            # Check if actor explicitly intended discard (col 0 significantly dominant)
+            explicit_discard = (continuous_action[:, 0] > 0.85) & (continuous_action[:, 0] > 1.8 * np.max(continuous_action[:, 1:], axis=1))
+        else:
+            target_indices = np.argmax(continuous_action, axis=1)
+            explicit_discard = np.zeros(num_tasks, dtype=bool)
 
         x_prime = np.zeros(num_tasks, dtype=int)
         y_prime = np.zeros((num_tasks, self.num_bs), dtype=int)
 
         for m in range(num_tasks):
-            target = target_indices[m]
-            if target == 0:
-                # Discard
+            if explicit_discard[m]:
                 x_prime[m] = 0
             else:
-                # Offload to BS (target - 1)
                 x_prime[m] = 1
-                y_prime[m, target - 1] = 1
+                y_prime[m, target_indices[m]] = 1
 
         # Step 2: Modify action a'(t) according to energy constraint (5), (16), and (17)
         x_hat = x_prime.copy()

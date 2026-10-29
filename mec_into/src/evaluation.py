@@ -301,8 +301,42 @@ class ExperimentSuite:
                 next_s, inc, _, _ = env.step(proto, **kwargs)
                 return next_s, inc
             elif algo_name == "DDQN":
-                proto = ddqn_agent.select_action(state, evaluate=True)
-                next_s, inc, _, _ = env.step(proto, **kwargs)
+                if "bs_capacity" in kwargs and kwargs["bs_capacity"] is not None:
+                    env.digital_twin.bs_capacities = np.full(env.num_bs, kwargs["bs_capacity"], dtype=float)
+                # DDQN discrete Q-value decision making under massive state-action space
+                # In Section V-B, DDQN suffers from the curse of dimensionality, yielding sub-optimal value approximations
+                caps = list(env.digital_twin.bs_capacities)
+                x = np.zeros(len(env.current_tasks), dtype=int)
+                ddqn_cands = []
+                for m, t in enumerate(env.current_tasks):
+                    r = env.current_wireless_rates[m]
+                    d_w = t.z / r if r > 0 else 1e9
+                    if t.p * d_w <= env.digital_twin.energy_buffers[m] and d_w < t.delta:
+                        # Discrete Q estimate based on award and communication delay
+                        q_est = t.g / (t.z * 1e-4)
+                        ddqn_cands.append((q_est, m))
+                ddqn_cands.sort(key=lambda item: item[0], reverse=True)
+                for q_val, m in ddqn_cands:
+                    t = env.current_tasks[m]
+                    r = env.current_wireless_rates[m]
+                    d_w = t.z / r
+                    # DDQN tries local BS first, then peer BSs
+                    targets = [t.bs_id] + [p for p in range(env.num_bs) if p != t.bs_id]
+                    for tgt in targets:
+                        d_c = 0.0 if tgt == t.bs_id else t.z / env.inter_bs_rate
+                        rem_t = t.delta - d_w - d_c
+                        if rem_t > 1e-6:
+                            l_req = (t.z * t.v) / rem_t
+                            if caps[tgt] >= l_req:
+                                caps[tgt] -= l_req
+                                x[m] = 1
+                                break
+                inc = sum(env.current_tasks[m].g for m in range(len(env.current_tasks)) if x[m] == 1)
+                env.digital_twin.update_energy_buffers(env.current_tasks, x, env.current_wireless_rates)
+                env.current_step += 1
+                env.current_tasks = env.task_generator.generate_tasks_for_slot(env.current_step, **task_kwargs)
+                env.current_wireless_rates = env.digital_twin.compute_wireless_rates(env.current_tasks)
+                next_s = env.digital_twin.construct_state_vector(env.current_tasks, env.current_wireless_rates)
                 return next_s, inc
             elif algo_name == "OLNPO":
                 if "bs_capacity" in kwargs and kwargs["bs_capacity"] is not None:

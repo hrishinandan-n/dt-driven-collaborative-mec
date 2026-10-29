@@ -55,6 +55,13 @@ def main():
 
     if args.mode in ["all", "baseline_compare"]:
         print("\n=== Baseline Comparison Experiments (Figure 6) ===")
+        # Always reload the best trained INTO and DDQN models for baseline comparison
+        if os.path.exists(checkpoint_into):
+            print(f"Loading best converged INTO model from {checkpoint_into}")
+            into_agent.load_checkpoint(checkpoint_into)
+        if os.path.exists(checkpoint_ddqn):
+            print(f"Loading best converged DDQN model from {checkpoint_ddqn}")
+            ddqn_agent.load_checkpoint(checkpoint_ddqn)
         suite.run_figure_6_baseline_comparisons(into_agent, ddqn_agent, eval_slots=args.eval_slots)
 
     print("\n[SUCCESS] All requested simulations and visualizations completed!")

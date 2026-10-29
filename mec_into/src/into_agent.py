@@ -102,8 +102,8 @@ class INTOAgent:
             noise = np.random.normal(0, self.noise_std, size=proto_action.shape)
             proto_action = np.clip(proto_action + noise, 0.0, 1.0)
 
-        # Reshape to (num_tasks, num_bs + 1) -> (165, 4)
-        return proto_action.reshape(self.num_tasks, self.num_bs + 1)
+        action_reshaped = proto_action.reshape(self.num_tasks, self.num_bs + 1)
+        return action_reshaped
 
     def update(self) -> Tuple[float, float]:
         """Lines 9-13: Sample mini-batch, update Critic, Actor, and Target networks."""

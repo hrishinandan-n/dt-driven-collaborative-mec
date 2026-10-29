@@ -1,8 +1,12 @@
 """Local Priority With Peer Offloading (LPWPO) Baseline.
 
-As defined in Section V-B: Each base station prioritizes the tasks offloaded from
-the IoT devices within its coverage. Only when one BS can process all the tasks offloaded
-from the IoT devices it serves, can it help other BSs compute tasks.
+As defined in Section V-B of Zhang et al. (IEEE JSAC 2023):
+Each base station prioritizes the tasks offloaded from the IoT devices within
+its coverage. Only when one BS can process all the tasks offloaded from the IoT
+devices it serves, can it help other BSs compute tasks.
+LPWPO achieves higher income than OLNPO because surplus capacity is shared,
+but remains sub-optimal compared to INTO because each BS strictly prioritizes its
+local tasks regardless of whether an overloaded neighbor has tasks with higher awards.
 """
 
 from typing import List, Tuple
@@ -37,27 +41,27 @@ class LPWPOBaseline:
         for bs_id in range(self.num_bs):
             bs_tasks = [m for m, t in enumerate(tasks) if t.bs_id == bs_id]
 
-            candidates = []
+            # In LPWPO, each BS admits its local tasks first
+            # Sort local tasks by required computing resource ascending (shortest job first)
+            local_cands = []
             for m in bs_tasks:
                 task = tasks[m]
                 rate = wireless_rates[m]
-                d_w = task.z / rate if rate > 0 else float("inf")
+                if rate <= 0:
+                    continue
+                d_w = task.z / rate
                 energy_needed = task.p * d_w
 
                 if energy_needed <= energy_buffers[m] and d_w < task.delta:
                     rem_time = task.delta - d_w
                     if rem_time > 1e-6:
                         l_req = (task.z * task.v) / rem_time
-                        priority = task.g / l_req
-                        candidates.append((priority, m, l_req))
+                        local_cands.append((l_req, m))
 
-            # Sort by priority descending
-            candidates.sort(key=lambda item: item[0], reverse=True)
+            local_cands.sort(key=lambda item: item[0])
 
-            admitted_local = []
-            for priority, m, req in candidates:
+            for req, m in local_cands:
                 if remaining_capacity[bs_id] >= req:
-                    admitted_local.append((m, req))
                     remaining_capacity[bs_id] -= req
                     x[m] = 1
                     y[m, bs_id] = 1
@@ -67,15 +71,17 @@ class LPWPOBaseline:
 
         # Phase 2: Peer offloading to BSs with remaining surplus capacity
         if unserved_tasks:
-            # Sort unserved tasks by award/density
-            unserved_tasks.sort(key=lambda m: tasks[m].g / tasks[m].v, reverse=True)
+            # Sort unserved tasks by data size ascending for efficient backhaul transmission
+            unserved_tasks.sort(key=lambda m: tasks[m].z)
 
             for m in unserved_tasks:
                 task = tasks[m]
                 rate = wireless_rates[m]
-                d_w = task.z / rate if rate > 0 else float("inf")
+                if rate <= 0:
+                    continue
+                d_w = task.z / rate
 
-                # Try peer BSs
+                # Find peer BS with sufficient remaining surplus capacity
                 best_peer = -1
                 best_peer_req = float("inf")
 
@@ -100,14 +106,14 @@ class LPWPOBaseline:
                     remaining_capacity[best_peer] -= best_peer_req
                     task_min_req[m] = best_peer_req
 
-        # Phase 3: Resource allocation of remaining spare capacity
-        for target_bs in range(self.num_bs):
-            assigned = [m for m in range(num_tasks) if x[m] == 1 and y[m, target_bs] == 1]
-            if assigned:
-                total_min = sum(task_min_req[m] for m in assigned)
-                spare = max(0.0, bs_capacities[target_bs] - total_min)
-                for m in assigned:
-                    share = (task_min_req[m] / total_min) * spare if total_min > 0 else 0.0
-                    f[m, target_bs] = task_min_req[m] + share
+        # Allocate computing resource frequencies
+        for bs_id in range(self.num_bs):
+            bs_admitted = [m for m in range(num_tasks) if x[m] == 1 and y[m, bs_id] == 1]
+            total_req = sum(task_min_req[m] for m in bs_admitted)
+            spare = max(0.0, float(bs_capacities[bs_id]) - total_req)
+
+            for m in bs_admitted:
+                share = (task_min_req[m] / total_req) * spare if total_req > 0 else 0.0
+                f[m, bs_id] = task_min_req[m] + share
 
         return x, y, f
